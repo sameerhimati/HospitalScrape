@@ -38,10 +38,10 @@ engine = create_engine(url)
 Session = sessionmaker(bind=engine)
 
 def init_db():
-    Base.metadata.create_all(engine)
+    Base.metadata.create_all(bind=engine, tables=[WebPage.__table__, WaitTime.__table__])
 
 def drop_tables():
-    Base.metadata.drop_all(engine)
+    Base.metadata.drop_all(bind=engine, tables=[WebPage.__table__, WaitTime.__table__])
 
 def save_web_page(hospital_id, page_url, content, relevance_score):
     session = Session()
