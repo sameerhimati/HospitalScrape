@@ -49,6 +49,7 @@ def main():
                     content = response.content
                     wait_time = extract_wait_times(content)
                     relevance_score = calculate_relevance(content, keywords)  # Improved relevance scoring
+                    logger.info(f"Relevance score for {url}: {relevance_score}")
                     save_web_page(hospital_id, url, content, relevance_score)
                     if wait_time:
                         save_wait_time(hospital_id, wait_time)

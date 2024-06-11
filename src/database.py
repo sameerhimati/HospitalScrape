@@ -54,6 +54,7 @@ def save_web_page(hospital_id, page_url, content, relevance_score):
             fetched_at=datetime.now()
         )
         session.add(web_page)
+        logging.info(f"Saved web page: {page_url} with relevance score: {relevance_score}")
         session.commit()
     except Exception as e:
         logger.error(f"Failed to save web page: {e}")

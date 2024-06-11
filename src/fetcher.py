@@ -46,14 +46,18 @@ def parse_content_with_encodings(response):
 
 def calculate_relevance(content, keywords):
     documents = [content] + keywords
+    print(content)
     vectorizer = TfidfVectorizer().fit_transform(documents)
     vectors = vectorizer.toarray()
     cosine_similarities = cosine_similarity(vectors[0:1], vectors[1:])
     relevance_score = cosine_similarities.mean()
+    logger.info(f"Relevance score for {content}: {relevance_score}")
     return relevance_score
 
 def fetch_and_process_pages(hospital_id, base_url, keywords):
     pages = []
+
+    # Attempt to fetch sitemap
     sitemap = fetch_sitemap(base_url)
     if sitemap:
         urls = [loc.text for loc in sitemap.find_all('loc')]
@@ -62,7 +66,18 @@ def fetch_and_process_pages(hospital_id, base_url, keywords):
             if page_content:
                 content = page_content.get_text()
                 score = calculate_relevance(content, keywords)
-                pages.append((url, content, score))
-    
-    pages.sort(key=lambda x: x[2], reverse=True)
-    return pages[:3]
+                pages.append({'hospital_id': hospital_id, 'url': url, 'content': content, 'relevance_score': score})
+        pages.sort(key=lambda x: x['relevance_score'], reverse=True)
+        return pages[:3]
+
+    # If sitemap not found, fetch pages directly from the base URL
+    else:
+        page_content = fetch_page(base_url)
+        if page_content:
+            content = page_content.get_text()
+            score = calculate_relevance(content, keywords)
+            # Append hospital_id along with other data
+            pages.append({'hospital_id': hospital_id, 'url': base_url, 'content': content, 'relevance_score': score})
+            return pages[:3]
+
+    return pages

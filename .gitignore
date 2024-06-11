@@ -29,6 +29,7 @@ instance/
 .vscode/
 .idea/
 .DS_Store
+.project
 
 # Environment
 .env
