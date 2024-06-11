@@ -1,0 +1,1 @@
+need to fix parser, extract wait times, rioght now just returning if keyword exists, not strict enough

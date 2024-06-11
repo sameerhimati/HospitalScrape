@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Distribution / packaging
+dist/
+build/
+
+# PyCharm
+.idea/
+*.iml
+
+# Flask
+instance/
+
+# Jupyter notebook
+.ipynb_checkpoints/
+
+# Python
+*.pyc
+*.pyo
+
+# Testing
+.cache
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Environment
+.env
+
+# Logs
+logs/
+
+# Temporary files
+*.swp
+*.log
+*.tmp
+
+# Exclude all files and directories
+*src/config.py
+*hospital
+
+# Include specific files and directories
+
+# Exclude all files and directories in a specific directory
