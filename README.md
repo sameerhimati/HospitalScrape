@@ -1,1 +1,1 @@
-need to fix parser, extract wait times, rioght now just returning if keyword exists, not strict enough
+Creating a webscaper first to extract wait times from hospitals and then to run a RAG to extract the right wait time given the context.
