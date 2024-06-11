@@ -1,8 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Float, ForeignKey, MetaData, Table
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import NoSuchTableError
-from contextlib import closing
 from datetime import datetime
 import logging
 from .config import DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
@@ -53,7 +51,7 @@ def save_web_page(hospital_id, page_url, content, relevance_score):
             page_url=page_url,
             content=content,
             relevance_score=relevance_score,
-            fetched_at=datetime.now(datetime.UTC)
+            fetched_at=datetime.now()
         )
         session.add(web_page)
         session.commit()
@@ -67,7 +65,7 @@ def update_last_fetched(hospital_id):
     session = Session()
     try:
         hospital_url = session.query(HospitalUrl).filter(HospitalUrl.id == hospital_id).one()
-        hospital_url.last_fetched = datetime.now(datetime.UTC)
+        hospital_url.last_fetched = datetime.now()
         session.commit()
     except Exception as e:
         logger.error(f"Failed to update last fetched: {e}")
@@ -92,7 +90,7 @@ def save_wait_time(hospital_id, wait_time):
         wait_time_record = WaitTime(
             hospital_id=hospital_id,
             wait_time=wait_time,
-            fetched_at=datetime.now(datetime.UTC)
+            fetched_at=datetime.now()
         )
         session.add(wait_time_record)
         session.commit()

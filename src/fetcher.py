@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import logging
 from datetime import datetime
 import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +45,12 @@ def parse_content_with_encodings(response):
     return None
 
 def calculate_relevance(content, keywords):
-    score = 0
-    for keyword in keywords:
-        occurrences = len(re.findall(keyword, content, re.IGNORECASE))
-        score += occurrences
-    return score
+    documents = [content] + keywords
+    vectorizer = TfidfVectorizer().fit_transform(documents)
+    vectors = vectorizer.toarray()
+    cosine_similarities = cosine_similarity(vectors[0:1], vectors[1:])
+    relevance_score = cosine_similarities.mean()
+    return relevance_score
 
 def fetch_and_process_pages(hospital_id, base_url, keywords):
     pages = []
