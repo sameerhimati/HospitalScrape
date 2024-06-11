@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 TIMEOUT = 10
+ENCODINGS = ['utf-8', 'iso-8859-1', 'windows-1252']
 
 def fetch_sitemap(url):
     headers = {'User-Agent': USER_AGENT}
@@ -25,10 +26,21 @@ def fetch_page(url):
     try:
         response = requests.get(url, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
-        return BeautifulSoup(response.content, 'html.parser')
+        return parse_content_with_encodings(response)
     except requests.RequestException as e:
         logger.error(f"Error fetching page {url}: {e}")
         return None
+
+def parse_content_with_encodings(response):
+    for encoding in ENCODINGS:
+        try:
+            response.encoding = encoding
+            content = response.text
+            return BeautifulSoup(content, 'html.parser')
+        except Exception as e:
+            logger.warning(f"Error parsing content with encoding {encoding}: {e}")
+    logger.error("Failed to parse content with all tried encodings.")
+    return None
 
 def calculate_relevance(content, keywords):
     score = 0

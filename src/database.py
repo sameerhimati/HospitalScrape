@@ -53,7 +53,7 @@ def save_web_page(hospital_id, page_url, content, relevance_score):
             page_url=page_url,
             content=content,
             relevance_score=relevance_score,
-            fetched_at=datetime.utcnow()
+            fetched_at=datetime.now(datetime.UTC)
         )
         session.add(web_page)
         session.commit()
@@ -67,7 +67,7 @@ def update_last_fetched(hospital_id):
     session = Session()
     try:
         hospital_url = session.query(HospitalUrl).filter(HospitalUrl.id == hospital_id).one()
-        hospital_url.last_fetched = datetime.utcnow()
+        hospital_url.last_fetched = datetime.now(datetime.UTC)
         session.commit()
     except Exception as e:
         logger.error(f"Failed to update last fetched: {e}")
@@ -92,7 +92,7 @@ def save_wait_time(hospital_id, wait_time):
         wait_time_record = WaitTime(
             hospital_id=hospital_id,
             wait_time=wait_time,
-            fetched_at=datetime.utcnow()
+            fetched_at=datetime.now(datetime.UTC)
         )
         session.add(wait_time_record)
         session.commit()
