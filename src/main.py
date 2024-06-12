@@ -26,30 +26,38 @@ def main():
     for hospital_id, hospital_url in hospital_urls:
         logger.info(f"Scraping data for hospital: {hospital_url}")
         try:
-            # Try sitemap first
-            sitemap_soup = fetch_sitemap(hospital_url)
-            sitemap_urls = extract_sitemap_urls(sitemap_soup) if sitemap_soup else []
-
             # Try site search
             search_query = 'ER wait times'
+            logger.info(f"Searching site with query: {search_query}")
             search_soup = search_site(hospital_url, search_query)
             search_results = extract_search_results(search_soup) if search_soup else []
+            logger.info(f"Search results: {search_results}")
 
-            # Try crawling
-            found_urls = crawl_site(hospital_url, keywords)
+            search_results = [url for url in search_results if url.startswith('https://')]
 
-            # Combine all found URLs
-            all_found_urls = set(sitemap_urls + search_results + found_urls)
-
-            # Fetch and process pages for the hospital URL
-            pages = fetch_and_process_pages(hospital_id, hospital_url, keywords)
-
-            # Save processed pages to the database
-            for page in pages:
-                save_web_page(page['hospital_id'], page['url'], page['content'])
+            # If search is successful, fetch and process pages for the search results
+            if search_results:
+                logger.info(f"Found search results. Fetching and processing pages.")
+                pages = fetch_and_process_pages(hospital_id, search_results, keywords)
+                for page in pages:
+                    save_web_page(page['hospital_id'], page['url'], page['content'])
+                    wait_times = extract_wait_times(page['content'])
+                    for wait_time in wait_times:
+                        save_wait_time(page['hospital_id'], wait_time)
+            else:
+                # If search fails, try crawling
+                logger.info(f"Search failed. Crawling the site.")
+                found_urls = crawl_site(hospital_url, keywords)
+                pages = fetch_and_process_pages(hospital_id, found_urls, keywords)
+                for page in pages:
+                    save_web_page(page['hospital_id'], page['url'], page['content'])
+                    wait_times = extract_wait_times(page['content'])
+                    for wait_time in wait_times:
+                        save_wait_time(page['hospital_id'], wait_time)
 
             # Update the last fetched timestamp for the hospital URL
             update_last_fetched(hospital_id)
+            logger.info(f"Updated last fetched timestamp for hospital ID: {hospital_id}")
 
             logger.info("Scraping completed. Processed URLs:")
             for page in pages:
@@ -57,5 +65,5 @@ def main():
         except Exception as e:
             logger.error(f"An error occurred while scraping data for hospital {hospital_url}: {e}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
